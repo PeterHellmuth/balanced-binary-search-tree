@@ -112,6 +112,200 @@ class Tree {
 
     return root;
   }
+
+  find(data, root = this.root) {
+    if (root == null) {
+      return false;
+    } else if (root.data == data) {
+      return root;
+    } else {
+      return this.find(data, root.left) || this.find(data, root.right);
+    }
+  }
+
+  levelOrder(func = null) {
+    let nodeQueue = [this.root];
+    let returnArr = [];
+    while (nodeQueue.length > 0) {
+      if (func) {
+        func(nodeQueue[0]);
+      } else {
+        returnArr.push(nodeQueue[0].data);
+      }
+      if (nodeQueue[0].left) {
+        nodeQueue.push(nodeQueue[0].left);
+      }
+      if (nodeQueue[0].right) {
+        nodeQueue.push(nodeQueue[0].right);
+      }
+      nodeQueue.splice(0, 1);
+    }
+
+    if (!func) {
+      return returnArr;
+    } else {
+      return null;
+    }
+  }
+
+  inorder(func = null, root = this.root) {
+    if (func && root) {
+      if (root.left) {
+        this.inorder(func, root.left);
+      }
+      func(root);
+      if (root.right) {
+        this.inorder(func, root.right);
+      }
+    } else {
+      if (root) {
+        let returnArr = [];
+        if (root.left) {
+          if (root.left.data) {
+            returnArr.push(this.inorder(null, root.left).flat());
+          }
+        }
+        if (root.data) {
+          returnArr.push(root.data);
+        }
+        if (root.right) {
+          if (root.right.data) {
+            returnArr.push(this.inorder(null, root.right).flat());
+          }
+        }
+        return returnArr.flat();
+      } else {
+        return null;
+      }
+    }
+  }
+
+  preorder(func = null, root = this.root) {
+    if (func && root) {
+      func(root);
+      if (root.left) {
+        this.preorder(func, root.left);
+      }
+      if (root.right) {
+        this.preorder(func, root.right);
+      }
+    } else {
+      if (root) {
+        let returnArr = [];
+        if (root.data) {
+          returnArr.push(root.data);
+        }
+        if (root.left) {
+          if (root.left.data) {
+            returnArr.push(this.preorder(null, root.left).flat());
+          }
+        }
+        if (root.right) {
+          if (root.right.data) {
+            returnArr.push(this.preorder(null, root.right).flat());
+          }
+        }
+        return returnArr.flat();
+      } else {
+        return null;
+      }
+    }
+  }
+
+  postorder(func = null, root = this.root) {
+    if (func && root) {
+      if (root.left) {
+        this.postorder(func, root.left);
+      }
+      if (root.right) {
+        this.postorder(func, root.right);
+      }
+      func(root);
+    } else {
+      if (root) {
+        let returnArr = [];
+        if (root.left) {
+          if (root.left.data) {
+            returnArr.push(this.postorder(null, root.left).flat());
+          }
+        }
+        if (root.right) {
+          if (root.right.data) {
+            returnArr.push(this.postorder(null, root.right).flat());
+          }
+        }
+        if (root.data) {
+          returnArr.push(root.data);
+        }
+        return returnArr.flat();
+      } else {
+        return null;
+      }
+    }
+  }
+
+  height(node, startHeight = 0) {
+    if (node) {
+      if (node.data) {
+        if (!node.left && !node.right) {
+          return startHeight;
+        } else {
+          let leftHeight = 0;
+          let rightHeight = 0;
+          if (node.left) {
+            leftHeight = this.height(node.left, startHeight);
+          }
+          if (node.right) {
+            rightHeight = this.height(node.right, startHeight);
+          }
+          if (leftHeight > rightHeight) {
+            return leftHeight + 1;
+          } else {
+            return rightHeight + 1;
+          }
+        }
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  depth(targetNode, currentNode = this.root, currentDepth = 0) {
+    if (currentNode) {
+      if (currentNode === targetNode) {
+        return currentDepth;
+      } else {
+        return (
+          this.depth(targetNode, currentNode.left, currentDepth + 1) ||
+          this.depth(targetNode, currentNode.right, currentDepth + 1)
+        );
+      }
+    } else {
+      return null;
+    }
+  }
+
+  isBalanced(node = this.root) {
+    let leftHeight = 0;
+    let rightHeight = 0;
+    if (node.left) {
+      if (!this.isBalanced(node.left)) {
+        return false;
+      }
+      leftHeight = this.height(node.left);
+    }
+    if (node.right) {
+      if (!this.isBalanced(node.right)) {
+        return false;
+      }
+      rightHeight = this.height(node.right);
+    }
+    if (Math.abs(leftHeight - rightHeight) <= 1) {
+      return true;
+    }
+  }
 }
 
 function buildTree(arr) {
@@ -129,9 +323,19 @@ function buildTreeRec(sortedArr, start = 0, end = sortedArr.length) {
     return null;
   }
   let mid = parseInt((start + end) / 2);
-  let root = new Node(sortedArr[mid]);
-  root.left = buildTreeRec(sortedArr, start, mid - 1);
-  root.right = buildTreeRec(sortedArr, mid + 1, end);
+  let root = null;
+  if (sortedArr[mid]) {
+    root = new Node(sortedArr[mid]);
+  }
+
+  let newLeft = buildTreeRec(sortedArr, start, mid - 1);
+  if (newLeft) {
+    root.left = newLeft;
+  }
+  let newRight = buildTreeRec(sortedArr, mid + 1, end);
+  if (newRight) {
+    root.right = newRight;
+  }
   return root;
 }
 
@@ -152,7 +356,12 @@ let aTree = new Tree(
   buildTree([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324])
 );
 
-aTree.delete(8);
-//console.log(aTree.contains(7));
+console.log(aTree.isBalanced());
 
 prettyPrint(aTree.root);
+
+function double(node) {
+  if (node.data) {
+    console.log(node.data * 2);
+  }
+}
