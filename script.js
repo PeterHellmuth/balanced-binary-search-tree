@@ -40,7 +40,6 @@ class Tree {
         let temp = inorderSucc.data;
         this.delete(inorderSucc.data);
         root.data = temp;
-        console.log(root.data);
         return false;
       }
     }
@@ -67,7 +66,6 @@ class Tree {
       let currentRoot = this.root;
 
       while (currentRoot != null) {
-        //console.log(currentRoot.data);
         if (node.data < currentRoot.data) {
           inorderSucc = currentRoot;
           currentRoot = currentRoot.left;
@@ -306,6 +304,11 @@ class Tree {
       return true;
     }
   }
+
+  rebalance() {
+    let flatArr = this.inorder();
+    this.root = buildTree(flatArr);
+  }
 }
 
 function buildTree(arr) {
@@ -313,7 +316,6 @@ function buildTree(arr) {
     return a - b;
   });
   sortedArr = arr.filter((item, index) => arr.indexOf(item) === index); //remove duplicates
-  console.log(sortedArr);
   let newRoot = buildTreeRec(sortedArr);
   return newRoot;
 }
@@ -326,16 +328,17 @@ function buildTreeRec(sortedArr, start = 0, end = sortedArr.length) {
   let root = null;
   if (sortedArr[mid]) {
     root = new Node(sortedArr[mid]);
+
+    let newLeft = buildTreeRec(sortedArr, start, mid - 1);
+    if (newLeft) {
+      root.left = newLeft;
+    }
+    let newRight = buildTreeRec(sortedArr, mid + 1, end);
+    if (newRight) {
+      root.right = newRight;
+    }
   }
 
-  let newLeft = buildTreeRec(sortedArr, start, mid - 1);
-  if (newLeft) {
-    root.left = newLeft;
-  }
-  let newRight = buildTreeRec(sortedArr, mid + 1, end);
-  if (newRight) {
-    root.right = newRight;
-  }
   return root;
 }
 
@@ -352,16 +355,28 @@ const prettyPrint = (node, prefix = "", isLeft = true) => {
   }
 };
 
-let aTree = new Tree(
-  buildTree([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324])
-);
+let randArr = [];
+
+for (i = 0; i < 25; i++) {
+  randArr.push(Math.floor(Math.random() * 100));
+}
+
+let aTree = new Tree(buildTree(randArr));
 
 console.log(aTree.isBalanced());
+console.log(aTree.levelOrder());
+console.log(aTree.inorder());
+console.log(aTree.preorder());
+console.log(aTree.postorder());
+aTree.insert(120);
+aTree.insert(150);
+aTree.insert(180);
+console.log(aTree.isBalanced());
+aTree.rebalance();
+console.log(aTree.isBalanced());
+console.log(aTree.levelOrder());
+console.log(aTree.inorder());
+console.log(aTree.preorder());
+console.log(aTree.postorder());
 
 prettyPrint(aTree.root);
-
-function double(node) {
-  if (node.data) {
-    console.log(node.data * 2);
-  }
-}
