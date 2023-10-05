@@ -7,60 +7,68 @@ class Node {
 }
 
 class Tree {
-  constructor(arr) {
-    this.root = buildTree(arr);
+  constructor(root) {
+    this.root = root;
+  }
+
+  insert(data) {
+    this.root = this.insertRec(this.root, data);
+  }
+
+  insertRec(root, data) {
+    if (root == null) {
+      root = new Node(data);
+      return root;
+    }
+
+    if (data < root.data) {
+      root.left = this.insertRec(root.left, data);
+    } else {
+      root.right = this.insertRec(root.right, data);
+    }
+
+    return root;
   }
 }
 
 function buildTree(arr) {
-  let returnArr = mergeSortRec(arr);
-  returnArr = arr.filter((item, index) => arr.indexOf(item) === index);
-
-  return returnArr;
+  let sortedArr = arr.sort(function (a, b) {
+    return a - b;
+  });
+  sortedArr = arr.filter((item, index) => arr.indexOf(item) === index); //remove duplicates
+  console.log(sortedArr);
+  let newRoot = buildTreeRec(sortedArr);
+  return newRoot;
 }
 
-let aTree = new Tree([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]);
-console.log(aTree.root);
-
-function mergeSortRec(arr) {
-  if (arr.length === 1) {
-    return arr;
-  } else {
-    let mid = Math.floor(arr.length / 2);
-    const left = arr.slice(0, mid);
-    const right = arr.slice(mid, arr.length);
-    return merge(mergeSortRec(left), mergeSortRec(right));
+function buildTreeRec(sortedArr, start = 0, end = sortedArr.length) {
+  if (start > end) {
+    return null;
   }
+  let mid = parseInt((start + end) / 2);
+  let root = new Node(sortedArr[mid]);
+  root.left = buildTreeRec(sortedArr, start, mid - 1);
+  root.right = buildTreeRec(sortedArr, mid + 1, end);
+  return root;
 }
 
-function merge(leftArr, rightArr) {
-  const result = [];
-
-  let leftCurrentElem = 0;
-  let rightCurrentElem = 0;
-
-  while (
-    leftCurrentElem < leftArr.length &&
-    rightCurrentElem < rightArr.length
-  ) {
-    if (leftArr[leftCurrentElem] < rightArr[rightCurrentElem]) {
-      result.push(leftArr[leftCurrentElem]);
-      leftCurrentElem++;
-    } else {
-      result.push(rightArr[rightCurrentElem]);
-      rightCurrentElem++;
-    }
+const prettyPrint = (node, prefix = "", isLeft = true) => {
+  if (node === null) {
+    return;
   }
-
-  while (leftCurrentElem < leftArr.length) {
-    result.push(leftArr[leftCurrentElem]);
-    leftCurrentElem++;
+  if (node.right !== null) {
+    prettyPrint(node.right, `${prefix}${isLeft ? "│   " : "    "}`, false);
   }
-
-  while (rightCurrentElem < rightArr.length) {
-    result.push(rightArr[rightCurrentElem]);
-    rightCurrentElem++;
+  console.log(`${prefix}${isLeft ? "└── " : "┌── "}${node.data}`);
+  if (node.left !== null) {
+    prettyPrint(node.left, `${prefix}${isLeft ? "    " : "│   "}`, true);
   }
+};
 
-  return result;
-}
+let aTree = new Tree(
+  buildTree([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324])
+);
+
+aTree.insert(5667);
+
+prettyPrint(aTree.root);
