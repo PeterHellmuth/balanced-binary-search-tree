@@ -26,13 +26,21 @@ class Tree {
       if (root.left == null && root.right == null) {
         root.data = null;
         return true;
-      } else if (root.left != null) {
+      } else if (root.right == null) {
         root.data = root.left.data;
         root.left = null;
         return false;
-      } else if (root.right != null) {
+      } else if (root.left == null) {
         root.data = root.right.data;
         root.right = null;
+        return false;
+      } else {
+        //both are not null, find inorderSuccessor.
+        let inorderSucc = this.inorderSuccessor(root);
+        let temp = inorderSucc.data;
+        this.delete(inorderSucc.data);
+        root.data = temp;
+        console.log(root.data);
         return false;
       }
     }
@@ -144,7 +152,7 @@ let aTree = new Tree(
   buildTree([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324])
 );
 
-console.log(aTree.inorderSuccessor(aTree.root.right.right));
+aTree.delete(8);
 //console.log(aTree.contains(7));
 
 prettyPrint(aTree.root);
